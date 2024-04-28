@@ -172,6 +172,7 @@ void fsm()
         case EVENT_NOT_EMPTY:
             //Activar actuadores
             //LED VERDE
+            update_led(green);
             log("STATE_CHECKING", "EVENT_NOT_EMPTY");
             actual_state = STATE_READY;
             break;
@@ -179,6 +180,7 @@ void fsm()
         case EVENT_EMPTY:
             //Activar actuadores
             //cambiarled(ROJO);
+            update_led(red);
             log("STATE_CHECKING", "EVENT_EMPTY");
             //actual_state = STATE_EMPTY;       //este no iría si lo hacemos sin estado EMPTY
             actual_state = STATE_CHECKING; //este iría si lo hacemos sin estado EMPTY
@@ -217,6 +219,7 @@ void fsm()
         case EVENT_DOG_NEARBY:
             //Activar actuadores
             //LED AMARILLO
+            update_led(yellow)
             //iniciaTemp();
             //cambiarled();
             log("STATE_READY", "EVENT_DOG_NEARBY");
@@ -226,7 +229,8 @@ void fsm()
         case EVENT_BUTTON:
             //Activar actuadores
             //LED AMARILLO
-            //SERVIR PELOTA
+            update_led(yellow)
+            drop_ball();
             log("STATE_READY", "EVENT_BUTTON");
             actual_state = STATE_DROP_BALL;
             break;
@@ -247,6 +251,7 @@ void fsm()
         case EVENT_TIMEOUT_WAIT:
             //Activar actuadores
             //SERVIR PELOTA
+            drop_ball();
             log("STATE_DOG_DETECTED", "EVENT_TIME_OUT_WAIT");
             actual_state = STATE_DROP_BALL;
             break;
@@ -254,6 +259,7 @@ void fsm()
         case EVENT_BUTTON:
             //Activar actuadores
             //SERVIR PELOTA
+            drop_ball();
             log("STATE_DOG_DETECTED", "EVENT_BUTTON");
             actual_state = STATE_DROP_BALL;
             break;
@@ -273,7 +279,7 @@ void fsm()
         case EVENT_TIMEOUT_CLOSE_SERVO:
             //Activar actuadores
             //CERRAR SERVO
-            //APAGAR LED
+            update_led(none);
             log("STATE_DROP_BALL", "EVENT_TIMEOUT_CLOSE_SERVO");
             actual_state = STATE_END_OF_SERVICE;
             break;
@@ -318,28 +324,35 @@ void fsm()
 // ------------------------------------------------
 // Actuadores
 // ------------------------------------------------
-void actualizar_led_carga(int color)
+void update_led(int color)
 {
-    actuador_led_rgb.color = color;
-    switch (actuador_led_rgb.color)
+    
+    switch (color)
     {
-    case COLOR_LED_VERDE:
-        digitalWrite(actuador_led_rgb.pin_rojo, LOW);
-        digitalWrite(actuador_led_rgb.pin_verde, HIGH);
-        digitalWrite(actuador_led_rgb.pin_azul, LOW);
+    case green:
+        digitalWrite(PIN_LED_RED, LOW);
+        digitalWrite(PIN_LED_GREEN, HIGH);
+        digitalWrite(PIN_LED_BLUE, LOW);
         break;
-    case COLOR_LED_AMARILLO:
-        digitalWrite(actuador_led_rgb.pin_rojo, HIGH);
-        digitalWrite(actuador_led_rgb.pin_verde, HIGH);
-        digitalWrite(actuador_led_rgb.pin_azul, LOW);
+    case yellow:
+        digitalWrite(PIN_LED_RED, HIGH);
+        digitalWrite(PIN_LED_GREEN, HIGH);
+        digitalWrite(PIN_LED_BLUE, LOW);
         break;
-    case COLOR_LED_ROJO:
-        digitalWrite(actuador_led_rgb.pin_rojo, HIGH);
-        digitalWrite(actuador_led_rgb.pin_verde, LOW);
-        digitalWrite(actuador_led_rgb.pin_azul, LOW);
+    case red:
+        digitalWrite(PIN_LED_RED, HIGH);
+        digitalWrite(PIN_LED_GREEN, LOW);
+        digitalWrite(PIN_LED_BLUE, LOW);
         break;
+    case none:
+        digitalWrite(PIN_LED_RED, LOW);
+        digitalWrite(PIN_LED_GREEN, LOW);
+        digitalWrite(PIN_LED_BLUE, LOW);
+        break;
+        
     }
 }
+
 
 
 // ------------------------------------------------
@@ -446,6 +459,7 @@ bool verify_button()
     }
     return false;
 }
+
 long distance_read(int distance_pin) 
 {
     long time_pulse;   
@@ -472,6 +486,14 @@ void servo_init()
     Servomotor.write(SERVO_CLOSE);
 }
 
+void drop_ball()
+{
+    Servomotor.write(SERVO_OPEN);
+    delayMicroseconds(DELAY_PULSE_10);// O se maneja con el EVENT_TIMEOUT_CLOSE_SERVO ??
+    Servomotor.write(SERVO_CLOSE);
+    event.type = EVENT_TIMEOUT_CLOSE_SERVO;
+}
+
 void distance_sensor_dog_init()
 {
 
@@ -488,6 +510,8 @@ void rgb_init()
     pinMode(PIN_LED_GREEN, OUTPUT);
     pinMode(PIN_LED_BLUE, OUTPUT);
     // En que color se inicia?
+    //Lo inicio en azul, despues vemos
+    digitalWrite(PIN_LED_BLUE, HIGH);
 }
 
 void button_init()
