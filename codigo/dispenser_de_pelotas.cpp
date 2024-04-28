@@ -280,6 +280,8 @@ void fsm()
             //Activar actuadores
             //CERRAR SERVO
             update_led(none);
+            close_servo();
+            
             log("STATE_DROP_BALL", "EVENT_TIMEOUT_CLOSE_SERVO");
             actual_state = STATE_END_OF_SERVICE;
             break;
@@ -489,9 +491,13 @@ void servo_init()
 void drop_ball()
 {
     Servomotor.write(SERVO_OPEN);
-    delayMicroseconds(DELAY_PULSE_10);// O se maneja con el EVENT_TIMEOUT_CLOSE_SERVO ??
+    check_time_servo = true;
+}
+
+void close_servo()
+{
     Servomotor.write(SERVO_CLOSE);
-    event.type = EVENT_TIMEOUT_CLOSE_SERVO;
+    check_time_servo = false;
 }
 
 void distance_sensor_dog_init()
