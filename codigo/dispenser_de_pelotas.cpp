@@ -50,6 +50,11 @@ long distance_read(int distance_pin);
 #define PIN_LED_BLUE 6
 #define PIN_LED_RED 5
 
+#define NONE 0
+#define GREEN 1
+#define RED 2
+#define YELLOW 3
+
 // ------------------------------------------------
 // states del embebido
 // ------------------------------------------------
@@ -172,7 +177,7 @@ void fsm()
         case EVENT_NOT_EMPTY:
             //Activar actuadores
             //LED VERDE
-            update_led(green);
+            update_led(GREEN);
             log("STATE_CHECKING", "EVENT_NOT_EMPTY");
             actual_state = STATE_READY;
             break;
@@ -180,7 +185,7 @@ void fsm()
         case EVENT_EMPTY:
             //Activar actuadores
             //cambiarled(ROJO);
-            update_led(red);
+            update_led(RED);
             log("STATE_CHECKING", "EVENT_EMPTY");
             //actual_state = STATE_EMPTY;       //este no iría si lo hacemos sin estado EMPTY
             actual_state = STATE_CHECKING; //este iría si lo hacemos sin estado EMPTY
@@ -219,7 +224,7 @@ void fsm()
         case EVENT_DOG_NEARBY:
             //Activar actuadores
             //LED AMARILLO
-            update_led(yellow)
+            update_led(YELLOW);
             //iniciaTemp();
             //cambiarled();
             log("STATE_READY", "EVENT_DOG_NEARBY");
@@ -229,7 +234,7 @@ void fsm()
         case EVENT_BUTTON:
             //Activar actuadores
             //LED AMARILLO
-            update_led(yellow)
+            update_led(YELLOW);
             drop_ball();
             log("STATE_READY", "EVENT_BUTTON");
             actual_state = STATE_DROP_BALL;
@@ -279,7 +284,7 @@ void fsm()
         case EVENT_TIMEOUT_CLOSE_SERVO:
             //Activar actuadores
             //CERRAR SERVO
-            update_led(none);
+            update_led(NONE);
             close_servo();
             
             log("STATE_DROP_BALL", "EVENT_TIMEOUT_CLOSE_SERVO");
@@ -331,22 +336,22 @@ void update_led(int color)
     
     switch (color)
     {
-    case green:
+    case GREEN:
         digitalWrite(PIN_LED_RED, LOW);
         digitalWrite(PIN_LED_GREEN, HIGH);
         digitalWrite(PIN_LED_BLUE, LOW);
         break;
-    case yellow:
+    case YELLOW:
         digitalWrite(PIN_LED_RED, HIGH);
         digitalWrite(PIN_LED_GREEN, HIGH);
         digitalWrite(PIN_LED_BLUE, LOW);
         break;
-    case red:
+    case RED:
         digitalWrite(PIN_LED_RED, HIGH);
         digitalWrite(PIN_LED_GREEN, LOW);
         digitalWrite(PIN_LED_BLUE, LOW);
         break;
-    case none:
+    case NONE:
         digitalWrite(PIN_LED_RED, LOW);
         digitalWrite(PIN_LED_GREEN, LOW);
         digitalWrite(PIN_LED_BLUE, LOW);
